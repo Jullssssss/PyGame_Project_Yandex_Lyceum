@@ -51,3 +51,93 @@ def pokaz(grid):
         for x in range(len(grid[y])):
             print(grid[y][x], end=" ")
         print()
+
+
+# обновление и приостановка элементов экрана
+def stop_disp(clock, x):
+    pygame.display.flip()
+    clock.tick(x)
+
+
+# проверяем, что ячейка, которую двигает игрок, находится рядом с первой
+def standing_nearby(selected_x, selected_y, x, y):
+    if selected_x + 1 == x and selected_y == y:
+        return True
+    elif selected_x - 1 == x and selected_y == y:
+        return True
+    elif selected_y + 1 == y and selected_x == x:
+        return True
+    elif selected_y - 1 == y and selected_x == x:
+        return True
+    return False
+
+
+def moving(array, x1, y1, x2, y2):
+    temp = array[y1][x1]
+    array[y1][x1] = array[y2][x2]
+    array[y2][x2] = temp
+
+
+def matches(board):
+    list = []
+    # проверяем совпадения в строках
+    for y in range(len(board)):
+        streak = 1
+        for x in range(1, len(board[y])):
+            if board[y][x] == board[y][x - 1] and board[y][x] != 0:
+                streak += 1
+            else:
+                streak = 1
+            if streak == 3:
+                list += [[y, x - 2]]
+                list += [[y, x - 1]]
+                list += [[y, x]]
+            elif streak > 3:
+                list += [[y, x]]
+    # проверяем совпадения в столбцах
+    for x in range(len(board[0])):
+        streak = 1
+        for y in range(1, len(board)):
+            if board[y][x] == board[y - 1][x] and board[y][x] != 0:
+                streak += 1
+            else:
+                streak = 1
+            if streak == 3:
+                list += [[y - 2, x]]
+                list += [[y - 1, x]]
+                list += [[y, x]]
+            elif streak > 3:
+                list += [[y, x]]
+
+    # сводим все совпадения к нулю
+    for i in range(len(list)):
+        y = list[i][0]
+        x = list[i][1]
+        board[y][x] = 0
+
+    return len(list)
+
+
+# используем функцию если на поле есть пустые клетки
+def desk_filling(board):
+    for y in range(len(board)):
+        if 0 in board[y]:  # 0 является пустой ячейкой
+            return False
+    return True
+
+
+# спускаем пустые ячейки на одну клетку вниз
+# проходимся по массиву от нижнего левого угла вверх по каждому столбцу
+def spusk_kletok(board):
+    for x in range(len(board[0])):
+        for y in range(len(board) - 2, -1, -1):
+            if board[y + 1][x] == 0 and board[y][x] != 0:
+                moving(board, x, y + 1, x, y)
+
+
+# заполняемм все пустые ячейки в верхней части поля
+def zapoln_verh(board):
+    for x in range(len(board[0])):
+        if board[0][x] == 0:
+            board[0][x] = random.randrange(1, 7)
+
