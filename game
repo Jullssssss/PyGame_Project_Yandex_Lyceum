@@ -141,3 +141,124 @@ def zapoln_verh(board):
         if board[0][x] == 0:
             board[0][x] = random.randrange(1, 7)
 
+
+# функция, запускающая игровой процесс
+def play():
+    WIDTH = 7
+    HEIGHT = 9
+    BOX_LENGTH = 70
+    selected = False
+    selected_x = None
+    selected_y = None
+    score = 0
+    turns_left = 20
+    GOAL_SCORE = 300
+    exit_game = False
+    gameover_displayed = False
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
+
+    board = array(WIDTH, HEIGHT)
+    nastroy(board)
+
+    pygame.init()
+    sound.load()
+    screen = draw.screen(WIDTH, HEIGHT, BOX_LENGTH)
+    clock = pygame.time.Clock()
+    draw.window(board, turns_left, score, GOAL_SCORE)
+    pygame.display.flip()
+
+    # начинаем игровой цикл
+    while not exit_game:
+        while turns_left > 0 and not exit_game:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit_game = True
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    coord_pair = pygame.mouse.get_pos()  # tuple from the left-click
+                    x = math.floor(coord_pair[0] / BOX_LENGTH)
+                    y = math.floor(coord_pair[1] / BOX_LENGTH)
+                    if x < WIDTH and y < HEIGHT:
+                        if selected == False:
+                            selected = True
+                            selected_x = x
+                            selected_y = y
+                            draw.selected(x, y)
+                        elif selected == True:
+                            if standing_nearby(selected_x, selected_y, x, y):
+                                moving(board, selected_x, selected_y, x, y)
+                                draw.window(board, turns_left, score, GOAL_SCORE)
+                                stop_disp(clock, 2.5)
+
+                                if coincidence(board):
+                                    turns_left -= 1
+                                    turn_score = 0
+                                    combo_count = 1
+
+                                    # пока не останется совпадающих ячеек
+                                    while coincidence(board):
+                                        turn_score += matches(board)
+                                        draw.window(board, turns_left, score,
+                                                    GOAL_SCORE)
+                                        sound.play("pop")
+                                        stop_disp(clock, 2.5)
+
+                                        while not desk_filling(board):
+                                            # заполнение доски пока не останется пустых ячеек
+                                            spusk_kletok(board)
+                                            zapoln_verh(board)
+                                            draw.window(board, turns_left, score,
+                                                        GOAL_SCORE)
+                                            stop_disp(clock, 2.5)
+
+                                        combo_count += 1
+
+                                    combo_count -= 1
+                                    score += turn_score * combo_count
+                                    draw.window(board, turns_left, score,
+                                                GOAL_SCORE)
+                                    pygame.display.flip()
+
+                                    if combo_count > 1:
+                                        sound.bonus(combo_count)
+                                        draw.combinations(combo_count)
+                                        pygame.display.flip()
+                                        pygame.time.delay(2000)
+                                        draw.window(board, turns_left, score,
+                                                    GOAL_SCORE)
+                                        pygame.display.flip()
+
+
+                                elif not coincidence(board):
+                                    # возращает ячейки на места при их несовпадении
+                                    moving(board, selected_x, selected_y, x, y)
+                                    draw.window(board, turns_left, score,
+                                                GOAL_SCORE)
+                                    pygame.display.flip()
+
+                            elif not standing_nearby(selected_x, selected_y, x, y):
+                                draw.window(board, turns_left, score, GOAL_SCORE)
+                                pygame.display.flip()
+
+                            selected = False
+                            selected_x = None
+                            selected_y = None
+
+            stop_disp(clock, 60)
+
+        if not gameover_displayed:
+            if score >= GOAL_SCORE:
+                draw.winner()
+                sound.play("win")
+            else:
+                draw.loser()
+                sound.play("lose")
+            gameover_displayed = True
+            pygame.display.flip()
+
+        # выход из игрового цикла
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit_game = True
+
+
+if __name__ == "__main__": play()
