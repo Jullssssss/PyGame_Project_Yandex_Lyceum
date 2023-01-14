@@ -67,3 +67,65 @@ def drawing(turns_left, score, goal_score):
     screen.blit(text, (to_pix(7.75 + offset), to_pix(4.1)))
 
 
+def desk_drawing(board):
+    for y in range(len(board)):
+        for x in range(len(board[y])):
+            image_drawing(board[y][x], x, y)
+
+
+# загрузка и изображение всех ассетов
+def image_drawing(num, x, y):
+    icon = None
+    x = to_pix(x) + 3
+    y = to_pix(y) + 3
+
+    if num == 1:
+        icon = images["img1"]
+    elif num == 2:
+        icon = images["img2"]
+    elif num == 3:
+        icon = images["img3"]
+    elif num == 4:
+        icon = images["img8"]
+    elif num == 5:
+        icon = images["img5"]
+    elif num == 6:
+        icon = images["img6"]
+    if num != 0:
+        screen.blit(icon, (x, y))
+
+
+def selected(x, y):
+    x = to_pix(x)
+    y = to_pix(y)
+    rect = pygame.Rect(x, y, BOX_LENGTH, BOX_LENGTH)
+    pygame.draw.rect(screen, (255, 192, 203), rect, 3)
+
+
+def winner():
+    msg("Win!")
+
+
+def loser():
+    msg("Lose!")
+
+
+# вывод результата игры на центр экрана
+def msg(msg):
+    color = (255, 192, 203)
+    if msg == "You Win!":
+        color = (255, 192, 203)
+    elif msg == "You Lose":
+        color = (255, 192, 203)
+
+    rect = pygame.Rect(to_pix(2), to_pix(3),
+                       to_pix(3), to_pix(2))
+    pygame.draw.rect(screen, (255, 255, 255), rect, 0)
+    pygame.draw.rect(screen, color, rect, 4)
+    font = pygame.font.SysFont("Times New Roman", 70)
+    text = font.render("You", True, color)
+    screen.blit(text, (to_pix(2.4), to_pix(3)))
+    text = font.render(msg, True, color)
+    screen.blit(text, (to_pix(2.4), to_pix(4)))
+
+
