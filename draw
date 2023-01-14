@@ -129,3 +129,28 @@ def msg(msg):
     screen.blit(text, (to_pix(2.4), to_pix(4)))
 
 
+def combinations(combo_count):
+    msg = ""
+    color = (0, 0, 0)
+    x = 0.1
+
+    if combo_count == 4:
+        color = (255, 192, 203)
+        msg = "COOL"
+        x = 2.25
+    elif combo_count == 3:
+        color = (255, 192, 203)
+        msg = "TRIPLE"
+        x = 1.65
+    elif combo_count == 2:
+        color = (255, 192, 203)
+        msg = "DOUBLE"
+        x = 1.2
+
+    rect = pygame.Rect(0, to_pix(4), to_pix(7), to_pix(1))
+    pygame.draw.rect(screen, (255, 255, 255), rect, 0)
+    pygame.draw.rect(screen, color, rect, 4)
+
+    font = pygame.font.SysFont("Times New Roman", 79)
+    text = font.render(msg, True, color)
+    screen.blit(text, (to_pix(x), to_pix(3.9)))
